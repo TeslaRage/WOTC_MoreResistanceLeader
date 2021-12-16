@@ -1,7 +1,5 @@
 class X2StrategyElement_MRLRewards extends X2StrategyElement_DefaultRewards config(MRL);
 
-var config name ClassName;
-
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Rewards;
@@ -54,14 +52,14 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 	local XComGameStateHistory History;
 	local XComGameState_Unit NewUnitState;
 	local XComGameState_HeadquartersXCom XComHQ;
-	local XComGameState_HeadquartersResistance ResistanceHQ;
+	local XComGameState_HeadquartersResistance ResistanceHQ;	
 	local int idx, NewRank, StartingIdx;
 
 	History = `XCOMHISTORY;
 
 	//Use the character pool's creation method to retrieve a unit
 	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, nmCharacter, nmCountry);
-	NewUnitState.RandomizeStats();
+	NewUnitState.RandomizeStats();	
 
 	if (NewUnitState.IsSoldier())
 	{
@@ -90,7 +88,7 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 			// Rank up to squaddie
 			if (idx == 0)
 			{
-				NewUnitState.RankUpSoldier(NewGameState, default.ClassName);
+				NewUnitState.RankUpSoldier(NewGameState, class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierClass());
 				NewUnitState.ApplySquaddieLoadout(NewGameState);
 				NewUnitState.bNeedsNewClassPopup = false;
 			}
@@ -104,8 +102,8 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 		NewUnitState.StartingFame = XComHQ.AverageSoldierFame;
 		NewUnitState.bIsFamous = true;
 
-        // Minimum Genius		
-		while (NewUnitState.ComInt < eComInt_Genius)
+        // Upgrade combat intelligence if necessary		
+		while (NewUnitState.ComInt < class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.GetMinComInt(NewUnitState.GetSoldierClassTemplate().DataName))
 		{
 			NewUnitState.ImproveCombatIntelligence();
 		}
