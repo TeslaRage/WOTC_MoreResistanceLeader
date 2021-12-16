@@ -1,0 +1,1 @@
+class X2DownloadableContentInfo_WOTC_MoreResistanceLeader extends X2DownloadableContentInfo;

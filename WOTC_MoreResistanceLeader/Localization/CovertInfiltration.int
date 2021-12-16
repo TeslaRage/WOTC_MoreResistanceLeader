@@ -1,0 +1,7 @@
+[Activity_PreparePersonnel_MRL X2ActivityTemplate_CovertAction]
+strOverviewDescription=Rescue Resistance Leader
+
+[ActivityChain_JailbreakMRLSoldier X2ActivityChainTemplate]
+strTitle="Jailbreak Resistance Leader"
+strDescription="Rescue one of our Resistance Cell Leader from an ADVENT cell."
+strObjective="rescue <font color='#33AB13'><XGParam:StrValue0/></font>"
