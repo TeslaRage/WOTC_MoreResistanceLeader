@@ -1,7 +1,5 @@
 class X2StrategyElement_MRLActivityChains extends X2StrategyElement_DefaultActivityChains config(MRL);
 
-var config int iRLLimit;
-
 static function array<X2DataTemplate> CreateTemplates()
 {
 	local array<X2DataTemplate> Activites;	
@@ -33,25 +31,12 @@ static function X2DataTemplate CreateJailbreakMRLTemplate()
 }
 
 static function bool IsMRLChainAvailable(XComGameState NewGameState)
-{    
-    local StateObjectReference UnitRef;
-    local XComGameState_Unit Unit;
-    local int iCount; 
-
+{
     // Only 1 at a time, else we can spawn one while the previous is still in progress, thus violating the count rules
 	if (DoesActiveChainExist('ActivityChain_JailbreakMRLSoldier', NewGameState)) return false;
 
-    iCount = 0; // Init
-    foreach `XComHQ.Crew(UnitRef)
-    {
-        Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
-        if (Unit != none && Unit.IsSoldier() && Unit.GetSoldierClassTemplate().DataName == class'X2StrategyElement_MRLRewards'.default.ClassName)
-        {
-            iCount++;
-        }
-    }
-
-    if (iCount >= default.iRLLimit) return false;
-
+    // If we getting blank then we should not trigger the chain
+    if (class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierClass() == '') return false;
+    
     return true;
 }
