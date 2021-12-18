@@ -20,11 +20,16 @@ static function name DetermineSoldierClass()
 	local XComGameState_Unit Unit;
 	local StateObjectReference UnitRef;
 	local XComGameState_HeadquartersXCom XComHQ;
+	local X2SoldierClassTemplateManager SCMan;
 	local int iCount;
 
 	XComHQ = `XCOMHQ;
 	foreach default.RescueClasses(RescueClass)
 	{
+		// Validate the soldier class, just in case the mod that introduces the class is not enabled
+		SCMan = class'X2SoldierClassTemplateManager'.static.GetSoldierClassTemplateManager();
+		if (SCMan.FindSoldierClassTemplate(RescueClass.ClassName) == none) continue;
+
 		iCount = 0; // Init
         foreach XComHQ.Crew(UnitRef)
         {
