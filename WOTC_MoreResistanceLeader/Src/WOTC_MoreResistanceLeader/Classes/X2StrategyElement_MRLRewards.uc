@@ -12,9 +12,15 @@ static function array<X2DataTemplate> CreateTemplates()
 static function X2DataTemplate CreateMRLRewardTemplate()
 {
 	local X2RewardTemplate Template;
+	local name NewTemplateName;
 
 	`CREATE_X2Reward_TEMPLATE(Template, 'Reward_ResistanceLeader');
-	Template.rewardObjectTemplateName = 'Soldier';
+	NewTemplateName = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierTemplate();
+	if (NewTemplateName == '')
+	{
+		NewTemplateName = 'Soldier';
+	}
+	Template.rewardObjectTemplateName = NewTemplateName;
 
 	Template.GenerateRewardFn = GenerateMRLPersonnelReward;
 	Template.SetRewardFn = SetPersonnelReward;
