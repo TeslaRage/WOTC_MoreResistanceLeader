@@ -9,7 +9,6 @@ struct RescueClassData
 
 	structdefaultproperties
 	{
-		SoldierTemplate = 'Soldier';
 		MinComInt = eComInt_Standard;
 	}
 };
@@ -62,14 +61,10 @@ static function name DetermineSoldierTemplate()
 	XComHQ = `XCOMHQ;
 	foreach default.RescueClasses(RescueClass)
 	{
-		// Validate the soldier class, just in case the mod that introduces the class is not enabled
-        Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
-		if (Unit.FindSoldierClassTemplate(RescueClass.SoldierTemplate) == none) continue;
-
-
 		iCount = 0; // Init
         foreach XComHQ.Crew(UnitRef)
         {
+        	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
             if (Unit != none && Unit.IsSoldier() && Unit.GetSoldierClassTemplate().DataName == RescueClass.ClassName)
             {
                 iCount++;
