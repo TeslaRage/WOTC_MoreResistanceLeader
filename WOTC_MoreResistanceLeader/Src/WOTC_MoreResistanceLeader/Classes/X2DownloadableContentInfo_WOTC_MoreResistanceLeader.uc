@@ -1,4 +1,4 @@
-class X2DownloadableContentInfo_WOTC_RescueTorqueMod extends X2DownloadableContentInfo;
+class X2DownloadableContentInfo_WOTC_MoreResistanceLeader extends X2DownloadableContentInfo;
 
 struct RescueClassData
 {
