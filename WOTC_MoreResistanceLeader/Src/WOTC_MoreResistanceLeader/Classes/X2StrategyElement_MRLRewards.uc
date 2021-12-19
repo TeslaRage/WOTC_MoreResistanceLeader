@@ -12,9 +12,15 @@ static function array<X2DataTemplate> CreateTemplates()
 static function X2DataTemplate CreateMRLRewardTemplate()
 {
 	local X2RewardTemplate Template;
+	local name NewTemplateName;
 
 	`CREATE_X2Reward_TEMPLATE(Template, 'Reward_ResistanceLeader');
-	Template.rewardObjectTemplateName = 'Soldier';
+	NewTemplateName = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierTemplate();
+	if (NewTemplateName == '')
+	{
+		NewTemplateName = 'Soldier';
+	}
+	Template.rewardObjectTemplateName = NewTemplateName;
 
 	Template.GenerateRewardFn = GenerateMRLPersonnelReward;
 	Template.SetRewardFn = SetPersonnelReward;
@@ -53,20 +59,13 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 	local XComGameState_Unit NewUnitState;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
-	local name ClassName, NewTemplateName;
+	local name ClassName;
 	local int idx, NewRank, StartingIdx;
 
 	History = `XCOMHISTORY;
 
-	// Optain the template from the config. If not defined or invalid, just une the default template.
-	NewTemplateName = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierTemplate();
-	if (ClassName == '')
-	{
-		NewTemplateName = 'Soldier';
-	}
-
 	//Use the character pool's creation method to retrieve a unit
-	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, NewTemplateName, nmCountry);
+	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, nmCharacter, nmCountry);
 	NewUnitState.RandomizeStats();	
 
 	if (NewUnitState.IsSoldier())
