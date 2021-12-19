@@ -53,13 +53,20 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 	local XComGameState_Unit NewUnitState;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
-	local name ClassName;
+	local name ClassName, NewTemplateName;
 	local int idx, NewRank, StartingIdx;
 
 	History = `XCOMHISTORY;
 
+	// Optain the template from the config. If not defined or invalid, just une the default template.
+	NewTemplateName = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierTemplate();
+	if (ClassName == '')
+	{
+		NewTemplateName = 'Soldier';
+	}
+
 	//Use the character pool's creation method to retrieve a unit
-	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, nmCharacter, nmCountry);
+	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, NewTemplateName, nmCountry);
 	NewUnitState.RandomizeStats();	
 
 	if (NewUnitState.IsSoldier())
