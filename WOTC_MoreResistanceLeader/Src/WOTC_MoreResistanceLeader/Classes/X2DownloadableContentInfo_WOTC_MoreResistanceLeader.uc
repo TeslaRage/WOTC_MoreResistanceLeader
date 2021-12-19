@@ -1,13 +1,15 @@
-class X2DownloadableContentInfo_WOTC_MoreResistanceLeader extends X2DownloadableContentInfo;
+class X2DownloadableContentInfo_WOTC_RescueTorqueMod extends X2DownloadableContentInfo;
 
 struct RescueClassData
 {
+	var name SoldierTemplate;
 	var name ClassName;
 	var int Limit;
 	var ECombatIntelligence MinComInt;
 
 	structdefaultproperties
 	{
+		SoldierTemplate = 'Soldier';
 		MinComInt = eComInt_Standard;
 	}
 };
@@ -33,7 +35,7 @@ static function name DetermineSoldierClass()
 		iCount = 0; // Init
         foreach XComHQ.Crew(UnitRef)
         {
-            Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
+        	Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
             if (Unit != none && Unit.IsSoldier() && Unit.GetSoldierClassTemplate().DataName == RescueClass.ClassName)
             {
                 iCount++;
@@ -47,6 +49,40 @@ static function name DetermineSoldierClass()
 	}
 
 	return '';
+}
+
+static function name DetermineSoldierTemplate()
+{
+	local RescueClassData RescueClass;
+	local XComGameState_Unit Unit;
+	local StateObjectReference UnitRef;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local int iCount;
+
+	XComHQ = `XCOMHQ;
+	foreach default.RescueClasses(RescueClass)
+	{
+		// Validate the soldier class, just in case the mod that introduces the class is not enabled
+        Unit = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(UnitRef.ObjectID));
+		if (Unit.FindSoldierClassTemplate(RescueClass.SoldierTemplate) == none) continue;
+
+
+		iCount = 0; // Init
+        foreach XComHQ.Crew(UnitRef)
+        {
+            if (Unit != none && Unit.IsSoldier() && Unit.GetSoldierClassTemplate().DataName == RescueClass.ClassName)
+            {
+                iCount++;
+            }
+        }
+
+        if (iCount < RescueClass.Limit)
+        {
+            return RescueClass.SoldierTemplate;
+        }
+	}
+
+	return 'Soldier';
 }
 
 static function ECombatIntelligence GetMinComInt(name SoldierClassName)
