@@ -31,7 +31,7 @@ static function X2DataTemplate CreateMRLRewardTemplate()
 static function GenerateMRLPersonnelReward(XComGameState_Reward RewardState, XComGameState NewGameState, optional float RewardScalar = 1.0, optional StateObjectReference RegionRef)
 {
 	local XComGameState_Unit NewUnitState;
-	local XComGameState_WorldRegion RegionState;
+	local XComGameState_WorldRegion RegionState;	
 	local name nmCountry;
 	
 	// Grab the region and pick a random country
@@ -42,24 +42,32 @@ static function GenerateMRLPersonnelReward(XComGameState_Reward RewardState, XCo
 	{
 		nmCountry = RegionState.GetMyTemplate().GetRandomCountryInRegion();
 	}
-
-	NewUnitState = CreateMRLUnit(NewGameState, RewardState.GetMyTemplate().rewardObjectTemplateName, nmCountry, (RewardState.GetMyTemplateName() == 'Reward_Rookie'));    
+	
+	NewUnitState = CreateMRLUnit(NewGameState, nmCountry);    
 	RewardState.RewardObjectReference = NewUnitState.GetReference();
 }
 
-static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, name nmCharacter, name nmCountry, optional bool bIsRookie)
+static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, name nmCountry)
 {
 	local XComGameStateHistory History;
 	local XComGameState_Unit NewUnitState;
 	local XComGameState_HeadquartersXCom XComHQ;
 	local XComGameState_HeadquartersResistance ResistanceHQ;
-	local name ClassName;
+	local RescueClassData RescueClass;	
 	local int idx, NewRank, StartingIdx;
 
 	History = `XCOMHISTORY;
 
+	RescueClass = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.GetConfigEntry();
+
+	// Safe guard
+	if (RescueClass.CharacterTemplateName == '')
+	{
+		RescueClass.CharacterTemplateName = 'Soldier';
+	}
+
 	//Use the character pool's creation method to retrieve a unit
-	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, nmCharacter, nmCountry);
+	NewUnitState = `CHARACTERPOOLMGR.CreateCharacter(NewGameState, `XPROFILESETTINGS.Data.m_eCharPoolUsage, RescueClass.CharacterTemplateName, nmCountry);
 	NewUnitState.RandomizeStats();	
 
 	if (NewUnitState.IsSoldier())
@@ -73,7 +81,7 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 		}
 
 		NewUnitState.ApplyInventoryLoadout(NewGameState);
-		NewRank = GetPersonnelRewardRank(true, bIsRookie);
+		NewRank = GetPersonnelRewardRank(true, false);
 		NewUnitState.SetXPForRank(NewRank);
 		NewUnitState.StartingRank = NewRank;
 		StartingIdx = 0;
@@ -91,14 +99,13 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 			{
 				// Get soldier class based on config but if returns blank, we let Resistance HQ determine the class for us
 				// Technically this should not happen because the chain should not even trigger in the first place i.e. reward will
-				// not be generated
-				ClassName = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierClass();
-				if (ClassName == '')
+				// not be generated				
+				if (RescueClass.ClassName == '')
 				{
-					ClassName = ResistanceHQ.SelectNextSoldierClass();
+					RescueClass.ClassName = ResistanceHQ.SelectNextSoldierClass();
 				}
 
-				NewUnitState.RankUpSoldier(NewGameState, class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierClass());
+				NewUnitState.RankUpSoldier(NewGameState, RescueClass.ClassName);
 				NewUnitState.ApplySquaddieLoadout(NewGameState);
 				NewUnitState.bNeedsNewClassPopup = false;
 			}
@@ -112,7 +119,7 @@ static function XComGameState_Unit CreateMRLUnit(XComGameState NewGameState, nam
 		NewUnitState.StartingFame = XComHQ.AverageSoldierFame;
 		NewUnitState.bIsFamous = true;
 
-        // Upgrade combat intelligence if necessary		
+		// Upgrade combat intelligence if necessary		
 		while (NewUnitState.ComInt < class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.GetMinComInt(NewUnitState.GetSoldierClassTemplate().DataName))
 		{
 			NewUnitState.ImproveCombatIntelligence();

@@ -32,11 +32,14 @@ static function X2DataTemplate CreateJailbreakMRLTemplate()
 
 static function bool IsMRLChainAvailable(XComGameState NewGameState)
 {
+	local RescueClassData RescueClass;
+
     // Only 1 at a time, else we can spawn one while the previous is still in progress, thus violating the count rules
 	if (DoesActiveChainExist('ActivityChain_JailbreakMRLSoldier', NewGameState)) return false;
 
     // If we getting blank then we should not trigger the chain
-    if (class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.DetermineSoldierClass() == '') return false;
+	RescueClass = class'X2DownloadableContentInfo_WOTC_MoreResistanceLeader'.static.GetConfigEntry();
+    if (RescueClass.ClassName == '') return false;
     
     return true;
 }
