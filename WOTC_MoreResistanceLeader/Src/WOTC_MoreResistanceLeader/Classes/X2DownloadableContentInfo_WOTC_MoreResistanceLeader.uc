@@ -19,6 +19,7 @@ var config (MRL) array<RescueClassData> RescueClasses;
 static function RescueClassData GetConfigEntry()
 {
 	local RescueClassData RescueClass, BlankEntry;
+	local array<RescueClassData> QualifiedRescueClasses;
 	local XComGameState_Unit Unit;
 	local StateObjectReference UnitRef;
 	local XComGameState_HeadquartersXCom XComHQ;
@@ -44,13 +45,17 @@ static function RescueClassData GetConfigEntry()
 
 		if (iCount < RescueClass.Limit)
 		{
-			return RescueClass;
+			QualifiedRescueClasses.AddItem(RescueClass);
 		}
+	}
+
+	if (QualifiedRescueClasses.Length > 0)
+	{
+		return QualifiedRescueClasses[`SYNC_RAND_STATIC(QualifiedRescueClasses.Length)];
 	}
 
 	return BlankEntry;
 }
-
 // No longer used. Replaced by GetConfigEntry
 static function name DetermineSoldierClass()
 {
